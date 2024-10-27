@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rule Engine</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>Create Rule</h1>
+    <form id="ruleForm">
+        <label for="ruleString">Rule:</label>
+        <input type="text" id="ruleString" name="ruleString" required>
+        <button type="button" onclick="createRule()">Create</button>
+    </form>
+
+    <h1>All Rules</h1>
+    <table id="rulesTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Rule String</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rules will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <script>
+        function createRule() {
+            const ruleString = document.getElementById("ruleString").value;
+
+            fetch('/api/rules/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ruleString })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Rule created successfully!');
+                addRuleToTable(data);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function addRuleToTable(rule) {
+            const table = document.getElementById('rulesTable').getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+
+            const idCell = newRow.insertCell(0);
+            const ruleStringCell = newRow.insertCell(1);
+
+            idCell.textContent = rule.id;
+            ruleStringCell.textContent = rule.ruleString;
+        }
+
+        // Fetch and display all rules on page load
+        fetch('/api/rules/all')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(rule => addRuleToTable(rule));
+            })
+            .catch(error => console.error('Error:', error));
+    </script>
+</body>
+</html>
